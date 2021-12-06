@@ -118,7 +118,16 @@ app.post('/api/projects', (req, res) => {
  */
 app.post('/api/projects/:id', (req, res) => {
   Project.findOneAndUpdate({ _id: req.params.id}, {
-    $set: req.body
+    $set:       
+    {
+      name: req.body.name,
+      address: req.body.address,
+      homeOwners: req.body.homeOwners,
+      budget: req.body.budget,
+      phone: req.body.phone,
+      email: req.body.email,
+      categories: req.body.categories
+    }
   }).then(() => {
     res.sendStatus(200);
   })
