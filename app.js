@@ -42,8 +42,6 @@ app.post('/api/invoices', (req, res) => {
     invoiceAmt: body.invoiceAmt,
   });
 
-  console.log(newInvoice)
-  console.log(body.project._id)
 
   Project.findOneAndUpdate(
     {
@@ -144,6 +142,60 @@ app.delete('/api/projects/:id', (req, res) => {
     res.send(removedProject)
   });
 })
+
+
+/**
+ * POST /api/close-draw/:id/:drawId
+ * Purpose: Close current draw
+ */
+ app.post('/api/close-draw/:id/:drawId', (req, res) => {
+
+  Project.findOneAndUpdate(
+    {
+      "_id": req.params.id
+    },
+    { 
+      $set: { "draws.$[a].isOpen": false },
+    },
+    {
+      "new": true,
+      "arrayFilters": [
+        { "a.name": req.params.drawId },
+      ]
+    }).then(() => {
+      res.sendStatus(200)
+  });
+});
+
+/**
+ * POST /api/open-new-draw/:id/:drawId
+ * Purpose: Close opens a new draw
+ */
+app.post('/api/open-new-draw/:id/:drawId', (req, res) => {
+
+  let drawNum = req.params.drawId[req.params.drawId.length -1];
+  let newDrawId = "draw" + (Number(drawNum) + 1);
+  console.log(newDrawId);
+
+  let newDraw = {
+    name: newDrawId,
+    isOpen: true,
+    invoices: []
+  }
+  Project.findOneAndUpdate(
+    {
+      "_id": req.params.id
+    },
+    { 
+      $push: { "draws": newDraw } 
+    }
+    ).then(() => {
+      res.sendStatus(200)
+  });
+    
+});
+
+
 
 /* COMPANY API CALLS */
 
