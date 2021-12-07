@@ -169,7 +169,7 @@ app.delete('/api/projects/:id', (req, res) => {
 
 /**
  * POST /api/open-new-draw/:id/:drawId
- * Purpose: Close opens a new draw
+ * Purpose: Opens a new draw
  */
 app.post('/api/open-new-draw/:id/:drawId', (req, res) => {
 
