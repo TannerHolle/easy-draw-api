@@ -1,4 +1,6 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const path = require('path');
 const bodyParser = require('body-parser');
 const app = express();
@@ -8,6 +10,7 @@ const { Project } = require('./db/models/project.model')
 const { Invoice } = require('./db/models/invoice.model')
 const { Company } = require('./db/models/company.model')
 const { Category } = require('./db/models/category.model')
+const { User } = require('./db/models/user.model')
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -276,6 +279,79 @@ app.delete('/api/companies/:id', (req, res) => {
     { $push: { "categories": newCategory } }).then(() => {
           res.sendStatus(200)
     });
+});
+
+/* User API CALLS */
+
+/**
+ * POST /api/user/login
+ * Purpose: Sign In
+ */
+ app.post('/api/user/login', (req, res) => {
+  let body = req.body;
+  let fetchedUser;
+  User.findOne({email: body.email})
+    .then(user => {
+      if (!user) {
+        return res.status(401).json({
+          message: "Auth Failed"
+        });
+      }
+      fetchedUser = user;
+      return bcrypt.compare(body.password, user.password);
+    })
+    .then(result => {
+      if (!result) {
+        return res.status(401).json({
+          message: "Auth Failed"
+        });
+      }
+      const token = jwt.sign(
+        {email: fetchedUser.email, userId: fetchedUser._id},
+        'secret_this_should_be_longer', 
+        {expiresIn: '1h'}
+      );
+      res.status(200).json({
+        token:token
+      })
+    })
+    .catch(err => {
+      return res.status(401).json({
+        message: "Auth Failed"
+      });
+    })
+});
+
+/**
+ * POST /api/user/sign-up
+ * Purpose: Create a new user
+ */
+ app.post('/api/user/sign-up', (req, res) => {
+  let body = req.body;
+
+  bcrypt.hash(body.password, 10)
+  .then(hash => {
+      let newUser = new User({
+        email: body.email,
+        password: hash
+      });
+      console.log(newUser)
+      newUser.save()
+        .then(result => {
+          res.status(201).json({
+            message: 'User Created',
+            result: result
+          })
+        })
+        .catch(err => {
+          res.status(500).json({
+            error: err
+          })
+        })
+    }
+  )
+
+
 });
 
 module.exports = app
