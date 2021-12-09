@@ -281,6 +281,19 @@ app.delete('/api/companies/:id', (req, res) => {
     });
 });
 
+/**
+ * POST /category-upload/:id
+ * Purpose: upload csv and add all categories to project
+ */
+ app.post('/api/category-upload/:id', (req, res) => {
+  let body = req.body;
+
+  Project.updateOne({ "_id": req.params.id},
+    { $push: { "categories": body } }).then(() => {
+          res.sendStatus(200)
+    });
+});
+
 /* User API CALLS */
 
 /**
