@@ -4,7 +4,7 @@ const { Category } = require('./category.model')
 const ProjectSchema = new mongoose.Schema({
   name: String,
   address: String,
-  homeOwners: String,
+  client: String,
   phone: String,
   email: String,
   budget: Number,

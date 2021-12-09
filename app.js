@@ -99,7 +99,7 @@ app.post('/api/projects', (req, res) => {
   let newProject = new Project({
     name: body.name,
     address: body.address,
-    homeOwners: body.homeOwners,
+    client: body.client,
     phone: body.phone,
     email: body.email,
     budget: body.budget,
@@ -123,7 +123,7 @@ app.post('/api/projects/:id', (req, res) => {
     {
       name: req.body.name,
       address: req.body.address,
-      homeOwners: req.body.homeOwners,
+      client: req.body.client,
       budget: req.body.budget,
       phone: req.body.phone,
       email: req.body.email,
