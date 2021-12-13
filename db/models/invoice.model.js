@@ -6,6 +6,7 @@ const InvoiceSchema = new mongoose.Schema({
   category: String,
   invoiceNum: String,
   invoiceAmt: Number,
+  invoicePath: String
 })
 
 const Invoice = mongoose.model('Invoice', InvoiceSchema)

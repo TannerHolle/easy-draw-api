@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const bodyParser = require('body-parser');
+const multer = require('multer');
 const app = express();
 const { mongoose } = require('./db/mongoose');
 
@@ -12,8 +13,16 @@ const { Company } = require('./db/models/company.model')
 const { Category } = require('./db/models/category.model')
 const { User } = require('./db/models/user.model')
 
+const MIME_TYPE_MAP = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'application/pdf': 'pdf'
+}
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use("/api/images", express.static(path.join(__dirname + "/images")))
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -27,6 +36,58 @@ app.use((req, res, next) => {
   );
   next();
 });
+
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     const isValid = MIME_TYPE_MAP[file.mimetype];
+//     let error = new Error("invalid Mime tyle")
+//     if (isValid){
+//       error = null;
+//     }
+//     cb(error, path.join(__dirname, '/images/'));
+//   },
+//   filename: (req, file, cb) => {
+//     const name = file.originalname
+//       .toLowerCase()
+//       .split(" ")
+//       .join("-");
+//     const ext = MIME_TYPE_MAP[file.mimetype];
+//     cb(null, name + "-" + Date.now() + "." + ext);
+//   }
+// })
+
+//Configuration for Multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+  cb(null, path.join(__dirname, '/images/'));
+},
+  filename: (req, file, cb) => {
+    const ext = file.mimetype.split("/")[1];
+    const name = file.originalname
+      .toLowerCase()
+      .split(" ")
+      .join("-");
+    cb(null, name + "-" + Date.now() + "." + ext);
+},
+});
+
+// Multer Filter
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.split("/")[1] === "pdf" || file.mimetype.split("/")[1] === "jpg" || file.mimetype.split("/")[1] === "jpeg") {
+    cb(null, true);
+  } else {
+    cb(new Error("Not a PDF or JPG File"), false);
+  }
+};
+
+//Calling the "multer" Function
+const upload = multer({
+  storage: storage,
+  fileFilter: multerFilter,
+});
+
+
+
 
 /* INVOICE API CALLS */
 
@@ -58,6 +119,41 @@ app.post('/api/invoices', (req, res) => {
       ]
     }).then(() => {
           res.sendStatus(200)
+    });
+});
+
+//TEST
+/**
+ * POST /invoices
+ * Purpose: Create a new invoice
+ */
+app.post('/api/inv', upload.single("image"), async (req, res) => {
+  let body = req.body;
+  const url = req.protocol + '://' + req.get("host")
+  let newInvoice = new Invoice({
+    company: body.company,
+    address: body.address,
+    category: body.category,
+    invoiceNum: body.invoiceNum,
+    invoiceAmt: body.invoiceAmt,
+    invoicePath: url + "/api/images/" + req.file.filename
+  });
+
+
+  Project.findOneAndUpdate(
+    {
+      "_id": req.body.projectId
+    },
+    { $push: { "draws.$[a].invoices": newInvoice } },
+    {
+      "new": true,
+      "arrayFilters": [
+        { "a.name": body.draw },
+      ]
+    }).then(createdInvoice => {
+          res.status(201).json({
+            message: "created Invoice Successfully"
+          })
     });
 });
 
