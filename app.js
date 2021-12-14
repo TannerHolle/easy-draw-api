@@ -1,5 +1,5 @@
 const express = require('express');
-const bcrypt = require('bcrypt');
+const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -407,7 +407,7 @@ app.delete('/api/companies/:id', (req, res) => {
         });
       }
       fetchedUser = user;
-      return bcrypt.compare(body.password, user.password);
+      return bcryptjs.compare(body.password, user.password);
     })
     .then(result => {
       if (!result) {
@@ -438,7 +438,7 @@ app.delete('/api/companies/:id', (req, res) => {
  app.post('/api/user/sign-up', (req, res) => {
   let body = req.body;
 
-  bcrypt.hash(body.password, 10)
+  bcryptjs.hash(body.password, 10)
   .then(hash => {
       let newUser = new User({
         email: body.email,
