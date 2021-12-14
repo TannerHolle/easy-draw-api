@@ -1,9 +1,12 @@
 const mongoose = require('mongoose');
 
 const CompanySchema = new mongoose.Schema({
-  Name: { type: String, required: true },
-  Address: { type: String, required: true },
-  TaxID: { type: String, required: true },
+  name: { type: String, required: true },
+  address: { type: String, required: true },
+  email: { type: String, required: true },
+  phone: { type: String, required: true },
+  taxId: { type: String, required: true },
+  certOfInsurance: { type: String, required: true },
   Notes: { type: String}
 })
 

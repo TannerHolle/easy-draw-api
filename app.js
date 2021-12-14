@@ -318,9 +318,12 @@ app.post('/api/companies', (req, res) => {
   let body = req.body;
 
   let newCompany = new Company({
-    Name: body.Name,
-    Address: body.Address,
-    TaxID: body.TaxID,
+    name: body.name,
+    address: body.address,
+    email: body.email,
+    phone: body.phone,
+    taxId: body.taxId,
+    certOfInsurance: body.certOfInsurance,
     Notes: body.Notes
   });
 
