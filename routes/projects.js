@@ -1,6 +1,7 @@
 const express = require("express");
 
-const { Project } = require('../db/models/project.model')
+const { Project } = require('../db/models/project.model');
+const checkAuth = require("../middleware/check-auth");
 
 const router = express.Router();
 
@@ -12,6 +13,18 @@ const router = express.Router();
  */
  router.get('/list', (req, res) => {
     Project.find({}).then((projects) => {
+      res.send(projects);
+    }).catch((e) => {
+      res.send(e);
+    });
+  });
+
+/**
+ * GET /projects
+ * Purpose: Get all projects in the db
+ */
+ router.get('/list/:creatorId', (req, res) => {
+    Project.find({creator: req.params.creatorId}).then((projects) => {
       res.send(projects);
     }).catch((e) => {
       res.send(e);
@@ -36,7 +49,7 @@ const router = express.Router();
    * POST /projects
    * Purpose: Create a new project
    */
-   router.post('/create', (req, res) => {
+   router.post('/create', checkAuth, (req, res) => {
     let body = req.body;
   
     let newProject = new Project({
@@ -47,10 +60,10 @@ const router = express.Router();
       email: body.email,
       budget: body.budget,
       categories: body.categories,
-      draws: body.draws
+      draws: body.draws,
+      creator: req.userData.userId
     });
-    console.log(newProject);
-  
+
     newProject.save().then((projectDoc) => {
       res.send(projectDoc);
     });
@@ -60,9 +73,8 @@ const router = express.Router();
    * POST /projects/:id
    * Purpose: Update a project
    */
-   router.post('/update/:id', (req, res) => {
-    Project.findOneAndUpdate({ _id: req.params.id}, {
-      $set:       
+   router.post('/update/:id', checkAuth, (req, res) => {
+    Project.updateOne({ _id: req.params.id, creator: req.userData.userId},    
       {
         name: req.body.name,
         address: req.body.address,
@@ -70,10 +82,17 @@ const router = express.Router();
         budget: req.body.budget,
         phone: req.body.phone,
         email: req.body.email,
-        categories: req.body.categories
+        categories: req.body.categories,
+        creator: req.userData.userId
       }
-    }).then(() => {
-      res.sendStatus(200);
+    ).then(result => {
+      if(result.modifiedCount > 0) {
+        res.sendStatus(200).json({ message: 'Update successful'});
+      } else {
+        res.sendStatus(401).json({ message: 'Not Authorized'});
+
+      }
+
     })
   });
   
@@ -81,12 +100,15 @@ const router = express.Router();
    * DELETE /projects/:id
    * Purpose: Delete a project from the db
    */
-   router.delete('/delete/:id', (req, res) => {
-    Project.findOneAndRemove({
-      _id: req.params.id
-    }).then((removedProject) => {
-      res.send(removedProject)
-    });
+   router.delete('/delete/:id', checkAuth, (req, res, next) => {
+    Project.deleteOne({_id: req.params.id, creator: req.userData.userId}).then(
+      result => {
+        if(result.deletedCount > 0) {
+          res.sendStatus(200).json({ message: 'Deletion successful'});
+        } else {
+          res.sendStatus(401).json({ message: 'Not Authorized'});  
+        }    
+      });
   })
   
   

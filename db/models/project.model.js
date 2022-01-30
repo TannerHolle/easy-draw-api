@@ -10,6 +10,7 @@ const ProjectSchema = new mongoose.Schema({
   budget: Number,
   categories: [],
   draws: [],
+  creator: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
 })
 
 const Project = mongoose.model('Project', ProjectSchema)
