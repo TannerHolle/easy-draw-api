@@ -88,6 +88,7 @@ router.post('/create', checkAuth, upload.single("image"), async (req, res) => {
     let newInvoice = new Invoice({
       company: body.company,
       address: body.address,
+      taxId: body.taxId,
       category: body.category,
       invoiceNum: body.invoiceNum,
       invoiceAmt: body.invoiceAmt,

@@ -28,6 +28,7 @@ app.use((req, res, next) => {
   next();
 });
 
+
 app.use("/api/invoice/", invoiceRoutes);
 app.use("/api/user/", userRoutes);
 app.use("/api/company/", companyRoutes);

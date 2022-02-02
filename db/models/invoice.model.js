@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const InvoiceSchema = new mongoose.Schema({
   company: String,
   address: String,
+  taxId: String,
   category: String,
   invoiceNum: String,
   invoiceAmt: Number,
