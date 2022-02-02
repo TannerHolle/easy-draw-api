@@ -21,7 +21,7 @@ const router = express.Router();
 
 /**
  * GET /projects
- * Purpose: Get all projects in the db
+ * Purpose: Get all projects in the db for User
  */
  router.get('/list/:creatorId', (req, res) => {
     Project.find({creator: req.params.creatorId}).then((projects) => {

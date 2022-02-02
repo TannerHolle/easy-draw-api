@@ -26,10 +26,23 @@ router.get('/list', (req, res) => {
   });
   
 /**
+ * GET /companies
+ * Purpose: Get a list of all the companies for a User
+ */
+router.get('/list/:creatorId', (req, res) => {
+    Company.find({creator: req.params.creatorId}).then((companies) => {
+      console.log(companies)
+      res.send(companies);
+    }).catch((e) => {
+      res.send(e);
+    });
+  });
+
+/**
  * POST /companies
  * Purpose: Create a new company
  */
- router.post('/create', (req, res) => {
+ router.post('/create', checkAuth, (req, res) => {
     let body = req.body;
   
     let newCompany = new Company({
@@ -39,6 +52,7 @@ router.get('/list', (req, res) => {
       phone: body.phone,
       taxId: body.taxId,
       certOfInsurance: body.certOfInsurance,
+      creator: req.userData.userId,
       Notes: body.Notes
     });
   

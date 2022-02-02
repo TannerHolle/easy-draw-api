@@ -7,6 +7,7 @@ const CompanySchema = new mongoose.Schema({
   phone: { type: String, required: true },
   taxId: { type: String, required: true },
   certOfInsurance: { type: String, required: true },
+  creator: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   Notes: { type: String}
 })
 
