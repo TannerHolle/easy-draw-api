@@ -61,7 +61,8 @@ const router = express.Router();
       budget: body.budget,
       categories: body.categories,
       draws: body.draws,
-      creator: req.userData.userId
+      creator: req.userData.userId,
+      completed: false
     });
 
     newProject.save().then((projectDoc) => {
@@ -148,7 +149,8 @@ const router = express.Router();
     let newDraw = {
       name: newDrawId,
       isOpen: true,
-      invoices: []
+      invoices: [],
+      changeOrders: []
     }
     Project.findOneAndUpdate(
       {

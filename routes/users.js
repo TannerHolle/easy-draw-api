@@ -40,7 +40,8 @@ const router = express.Router();
         res.status(200).json({
           token:token,
           expiresIn: 3600,
-          userId: fetchedUser._id
+          userId: fetchedUser._id,
+          userName: fetchedUser.name
         })
       })
       .catch(err => {
@@ -60,6 +61,8 @@ const router = express.Router();
     bcryptjs.hash(body.password, 10)
     .then(hash => {
         let newUser = new User({
+          name: body.name,
+          company: body.company,
           email: body.email,
           password: hash
         });

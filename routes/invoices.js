@@ -77,7 +77,6 @@ router.post('/create_deprecated', (req, res) => {
       });
   });
   
-  //TEST
   /**
    * POST /invoices
    * Purpose: Create a new invoice
@@ -108,7 +107,42 @@ router.post('/create', checkAuth, upload.single("image"), async (req, res) => {
         ]
       }).then(createdInvoice => {
             res.status(201).json({
-              message: "created Invoice Successfully"
+              message: "Created Invoice Successfully"
+            })
+      });
+  });
+
+  /**
+   * POST /invoices
+   * Purpose: Create a new change order
+   */
+router.post('/create-change-order', checkAuth, upload.single("image"), async (req, res) => {
+    let body = req.body;
+    const url = req.protocol + '://' + req.get("host")
+    let newChangeOrder = new Invoice({
+      company: body.company,
+      address: body.address,
+      taxId: body.taxId,
+      category: body.category,
+      invoiceNum: body.invoiceNum,
+      invoiceAmt: body.invoiceAmt,
+      invoicePath: url + "/api/images/" + req.file.filename
+    });
+  
+  
+    Project.findOneAndUpdate(
+      {
+        "_id": req.body.projectId
+      },
+      { $push: { "draws.$[a].changeOrders": newChangeOrder } },
+      {
+        "new": true,
+        "arrayFilters": [
+          { "a.name": body.draw },
+        ]
+      }).then(createdInvoice => {
+            res.status(201).json({
+              message: "Created Change Order Successfully"
             })
       });
   });
