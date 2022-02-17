@@ -147,7 +147,7 @@ const router = express.Router();
     console.log(newDrawId);
   
     let newDraw = {
-      name: newDrawId,
+      name: req.params.drawId,
       isOpen: true,
       invoices: [],
       changeOrders: []
