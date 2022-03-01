@@ -1,4 +1,11 @@
 const express = require("express");
+const request = require('request');
+const path = require('path');
+const fs = require('fs');
+const ImagesToPDF = require('images-pdf');
+const PDFDocument = require('pdfkit');
+const jsPDF = require('jsPDF');
+
 
 const { Project } = require('../db/models/project.model');
 const checkAuth = require("../middleware/check-auth");
@@ -19,9 +26,10 @@ const router = express.Router();
     });
   });
 
+
 /**
  * GET /projects
- * Purpose: Get all projects in the db for User
+ * Purpose: Get all projects in the db for one User
  */
  router.get('/list/:creatorId', (req, res) => {
     Project.find({creator: req.params.creatorId}).then((projects) => {
@@ -164,7 +172,7 @@ const router = express.Router();
     });
       
   });
-  
 
+  
 
 module.exports = router;
