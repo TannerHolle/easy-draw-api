@@ -174,37 +174,5 @@ router.post('/change-paid-status', async (req, res) => {
     
 });
 
-/**
- * POST /mark-as-unpaid
- * Purpose: Create a new change order
- */
-router.post('/mark-as-unpaid', async (req, res) => {  
-  let body = req.body;
 
-  Project.findOneAndUpdate(
-    {
-      "_id": body.id
-    },
-    { 
-      $set: { "draws.$[draw].invoices.$[invoice].isPaid": false } 
-    },
-    {
-      new: true,
-      "arrayFilters": [
-        { "draw.name": body.drawId },
-        { "invoice._id": mongoose.Types.ObjectId(body.invoiceId) },
-      ]
-    }
-    ).then((result) => {
-      res.send(result.draws)
-    }).catch((e) => {
-      console.log(e)
-      res.send(e);
-    });
-
-    
-});
-
-  
-
-  module.exports = router;
+module.exports = router;

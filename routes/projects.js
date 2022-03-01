@@ -1,11 +1,4 @@
 const express = require("express");
-const request = require('request');
-const path = require('path');
-const fs = require('fs');
-const ImagesToPDF = require('images-pdf');
-const PDFDocument = require('pdfkit');
-const jsPDF = require('jsPDF');
-
 
 const { Project } = require('../db/models/project.model');
 const checkAuth = require("../middleware/check-auth");
