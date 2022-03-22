@@ -53,6 +53,7 @@ const storage = multer.diskStorage({
    */
 router.post('/create', checkAuth, upload.single("image"), async (req, res) => {
     let body = req.body;
+    console.log(body);
     const url = req.protocol + '://' + req.get("host")
     let newInvoice = new Invoice({
       company: body.company,
@@ -173,6 +174,62 @@ router.post('/change-paid-status', async (req, res) => {
 
     
 });
+
+  /**
+   * POST /api/invoices/update
+   * Purpose: Update an invoice
+   */
+   router.post('/update', checkAuth, async (req, res) => {
+    Project.findOneAndUpdate(
+      {
+        "_id": req.body.projectId
+      },
+      { 
+        $set: { "draws.$[draw].invoices.$[invoice].invoiceAmt": req.body.invoiceAmt, "draws.$[draw].invoices.$[invoice].invoiceNum": req.body.invoiceNum  } 
+      },
+      {
+        new: true,
+        "arrayFilters": [
+          { "draw.name": req.body.draw },
+          { "invoice._id": mongoose.Types.ObjectId(req.body.invoiceId) },
+        ]
+      }
+      ).then((result) => {
+        res.send(result.draws)
+      }).catch((e) => {
+        console.log(e)
+        res.send(e);
+      });
+
+  });
+
+  /**
+   * POST /api/invoices/delete
+   * Purpose: Update an invoice
+   */
+  //  router.post('/delete', checkAuth, async (req, res) => {
+
+  //   Project.findOneAndUpdate(
+  //     {
+  //       "_id": req.body.projectId
+  //     },
+  //     { 
+  //       $pull: { "draws.$[draw].invoices": {invoiceId: mongoose.Types.ObjectId(req.body.invoiceId) } }
+  //     },
+  //     {
+  //       new: true,
+  //       "arrayFilters": [
+  //         { "draw.name": req.body.draw },
+  //       ]
+  //     }
+  //     ).then((result) => {
+  //       res.send(result.draws)
+  //     }).catch((e) => {
+  //       console.log(e)
+  //       res.send(e);
+  //     });
+
+  // });
 
 
 module.exports = router;
