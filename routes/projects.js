@@ -141,14 +141,10 @@ const router = express.Router();
    * POST /api/open-new-draw/:id/:drawId
    * Purpose: Opens a new draw
    */
-  router.post('/open-new-draw/:id/:drawId', (req, res) => {
-  
-    let drawNum = req.params.drawId[req.params.drawId.length -1];
-    let newDrawId = "draw" + (Number(drawNum) + 1);
-    console.log(newDrawId);
-  
+  router.post('/open-new-draw/:id', (req, res) => {
+
     let newDraw = {
-      name: req.params.drawId,
+      name: req.body.drawId,
       isOpen: true,
       invoices: [],
       changeOrders: []

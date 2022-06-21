@@ -55,11 +55,30 @@ router.get('/list/:creatorId', (req, res) => {
       creator: req.userData.userId,
       Notes: body.Notes
     });
+    console.log("newCompany: " + JSON.stringify(newCompany))
   
     newCompany.save().then((companyDoc) => {
       res.send(companyDoc);
     });
   });
+
+/**
+ * POST /companies
+ * Purpose: Create a new company
+ */
+ router.post('/upload', checkAuth, (req, res) => {
+    let companies = req.body;
+    console.log("before companies: " + JSON.stringify(companies))
+    
+    for (let company of companies) {
+      company["creator"] = req.userData.userId
+    }
+    console.log("after companies: " + JSON.stringify(companies))
+    Company.insertMany(companies)
+      .then(() => {
+        res.sendStatus(200)
+      });
+    });
   
   /**
    * POST /companies/:id

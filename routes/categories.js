@@ -36,9 +36,11 @@ router.post('/create', (req, res) => {
    */
    router.post('/upload/:id', (req, res) => {
     let body = req.body;
+
+    console.log("category upload: " + JSON.stringify(body))
   
     Project.updateOne({ "_id": req.params.id},
-      { $push: { "categories": body } }).then(() => {
+      { $push: { "categories": {$each: body} } }).then(() => {
             res.sendStatus(200)
       });
   });
