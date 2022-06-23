@@ -64,7 +64,8 @@ const router = express.Router();
           name: body.name,
           company: body.company,
           email: body.email,
-          password: hash
+          password: hash,
+          securityAnswer: body.answer
         });
         console.log(newUser)
         newUser.save()
@@ -81,6 +82,47 @@ const router = express.Router();
           })
       }
     )
+  });
+  
+  /**
+   * POST /api/user/reset-password
+   * Purpose: Create a new user
+   */
+   router.post('/reset-password', (req, res) => {
+    let body = req.body;
+    console.log(JSON.stringify(body.email))
+    let hash1 = bcryptjs.hash(body.password, 10)
+    console.log("hash1" + JSON.stringify(hash1))
+    bcryptjs.hash(body.password, 10)
+    .then(hash => {
+        console.log(hash)
+        console.log(body.email)
+        User.findOneAndUpdate({email: body.email}, {$set: {"password": hash}}, {new: true}, (err, doc) => {
+          if (err) {
+              console.log("Something wrong when updating data!");
+          }
+      
+          console.log(doc);
+      });
+      }
+    ).then(createdInvoice => {
+      res.status(201).json({
+        message: "Created Invoice Successfully"
+      })
+});
+  });
+
+  /**
+ * GET /user/find
+ * Purpose: Return the info for one user
+ */
+  router.post('/find',  (req, res) => {
+    User.find({email: req.body.email}).then((user) => {
+      console.log(user)
+      res.send(user);
+    }).catch((e) => {
+      res.send(e);
+    });
   });
 
   module.exports = router;
