@@ -31,7 +31,6 @@ router.get('/list', (req, res) => {
  */
 router.get('/list/:creatorId', (req, res) => {
     Company.find({creator: req.params.creatorId}).then((companies) => {
-      console.log(companies)
       res.send(companies);
     }).catch((e) => {
       res.send(e);
@@ -55,7 +54,6 @@ router.get('/list/:creatorId', (req, res) => {
       creator: req.userData.userId,
       Notes: body.Notes
     });
-    console.log("newCompany: " + JSON.stringify(newCompany))
   
     newCompany.save().then((companyDoc) => {
       res.send(companyDoc);
@@ -68,12 +66,10 @@ router.get('/list/:creatorId', (req, res) => {
  */
  router.post('/upload', checkAuth, (req, res) => {
     let companies = req.body;
-    console.log("before companies: " + JSON.stringify(companies))
     
     for (let company of companies) {
       company["creator"] = req.userData.userId
     }
-    console.log("after companies: " + JSON.stringify(companies))
     Company.insertMany(companies)
       .then(() => {
         res.sendStatus(200)

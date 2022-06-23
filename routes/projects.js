@@ -38,7 +38,6 @@ const router = express.Router();
    */
    router.get('/:id', (req, res) => {
     Project.find({"_id": req.params.id}).then((projects) => {
-      console.log(projects)
       res.send(projects);
     }).catch((e) => {
       console.log(e)
