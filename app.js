@@ -11,6 +11,10 @@ const categoryRoutes = require("./routes/categories");
 
 const app = express();
 
+app.get('/', (req, res) => {
+  res.send('<h1>Express Demo App</h1> <h4>Message: Success</h4> <p>Version 1.1</p>');
+})
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use("/api/images", express.static(path.join(__dirname + "/images")))
