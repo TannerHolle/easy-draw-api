@@ -9,6 +9,13 @@ const checkAuth = require("../middleware/check-auth");
 
 const { Invoice } = require('../db/models/invoice.model')
 const { Project } = require('../db/models/project.model')
+const { uploadFile, getFileStream } = require('../s3')
+
+
+// To delete image from server
+const fs = require('fs')
+const util = require('util')
+const unlinkFile = util.promisify(fs.unlink)
 
 
 const router = express.Router();
@@ -55,6 +62,8 @@ router.post('/create', checkAuth, upload.single("image"), async (req, res) => {
     let body = req.body;
     console.log(body);
     const url = req.protocol + '://' + req.get("host")
+    const result = await uploadFile(req.file)
+    console.log(result)
     let newInvoice = new Invoice({
       company: body.company,
       address: body.address,
