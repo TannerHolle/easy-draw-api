@@ -28,8 +28,6 @@ app.use((req, res, next) => {
   next();
 });
 
-//Lets see
-
 app.use("/api/invoice/", invoiceRoutes);
 app.use("/api/user/", userRoutes);
 app.use("/api/company/", companyRoutes);
