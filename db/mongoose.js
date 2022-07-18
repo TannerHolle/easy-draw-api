@@ -1,4 +1,4 @@
-// this file will handle connection logic to the mongoDB database
+// this file will handle connection logic to the mongoDB
 require('dotenv').config()
 const mongoose = require('mongoose');
 
