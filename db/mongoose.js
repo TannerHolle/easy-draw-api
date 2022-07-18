@@ -1,12 +1,12 @@
 // this file will handle connection logic to the mongoDB database
-
+require('dotenv').config()
 const mongoose = require('mongoose');
 
 
 mongoose.Promise = global.Promise;
 
 /** If we are connecting to mongo Atlas in prod */
-mongoose.connect('mongodb+srv://admin:EasyDrawAdmin@easydraw.kh14q.mongodb.net/EasyDraw?retryWrites=true&w=majority').then(() =>{
+mongoose.connect(process.env.DB).then(() =>{
     console.log("connected to MongoDB successfully :)")
   }).catch((e) => {
     console.log("Error while trying to connect to MongoDB")
