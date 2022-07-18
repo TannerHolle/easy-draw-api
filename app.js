@@ -28,6 +28,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// respond with "hello world" when a GET request is made to the homepage
+app.get('/', (req, res) => {
+  res.send('Successfully Connected to Server')
+})
+
 app.use("/api/invoice/", invoiceRoutes);
 app.use("/api/user/", userRoutes);
 app.use("/api/company/", companyRoutes);
