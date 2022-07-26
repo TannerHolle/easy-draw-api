@@ -71,7 +71,7 @@ router.post('/create', checkAuth, upload.single("image"), async (req, res) => {
       category: body.category,
       invoiceNum: body.invoiceNum,
       invoiceAmt: body.invoiceAmt,
-      invoicePath: url + "/api/images/" + req.file.filename,
+      invoicePath: result.Location,
       isPaid: false
     });
   
@@ -100,6 +100,7 @@ router.post('/create', checkAuth, upload.single("image"), async (req, res) => {
 router.post('/create-change-order', checkAuth, upload.single("image"), async (req, res) => {
     let body = req.body;
     const url = req.protocol + '://' + req.get("host")
+    const result = await uploadFile(req.file)
     let newChangeOrder = new Invoice({
       company: body.company,
       address: body.address,
@@ -107,7 +108,7 @@ router.post('/create-change-order', checkAuth, upload.single("image"), async (re
       category: body.category,
       invoiceNum: body.invoiceNum,
       invoiceAmt: body.invoiceAmt,
-      invoicePath: url + "/api/images/" + req.file.filename,
+      invoicePath: result.Location,
       isPaid: false
     });
   
