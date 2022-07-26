@@ -28,10 +28,6 @@ app.use((req, res, next) => {
   next();
 });
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 3b40524ea3c5693ee30b968b2e6d7cd7f6568a91
 app.use("/api/invoice/", invoiceRoutes);
 app.use("/api/user/", userRoutes);
 app.use("/api/company/", companyRoutes);
