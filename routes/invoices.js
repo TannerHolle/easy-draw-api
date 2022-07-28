@@ -179,10 +179,17 @@ router.post('/change-paid-status', async (req, res) => {
         console.log(e)
         res.send(e);
       });
-  }
+  } 
+});
 
-
-    
+/**
+* GET /invoices
+* Purpose: Retrieve aws s3 file
+*/
+router.get('/get-aws-file/:fileName', async (req, res) => {
+  let fileName = req.params.fileName;
+  let result = await getFileStream(fileName);
+  result.pipe(res)
 });
 
   /**
