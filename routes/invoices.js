@@ -67,11 +67,12 @@ router.post('/create', checkAuth, upload.single("image"), async (req, res) => {
   let newInvoice = new Invoice({
     company: body.company,
     address: body.address,
-    taxId: body.taxId,
+    costCode: body.costCode,
     category: body.category,
     invoiceNum: body.invoiceNum,
     invoiceAmt: body.invoiceAmt,
     invoicePath: result.Location,
+    taxId: body.taxId,
     isPaid: false
   });
 
@@ -104,11 +105,12 @@ router.post('/create-change-order', checkAuth, upload.single("image"), async (re
   let newChangeOrder = new Invoice({
     company: body.company,
     address: body.address,
-    taxId: body.taxId,
+    costCode: body.costCode,
     category: body.category,
     invoiceNum: body.invoiceNum,
     invoiceAmt: body.invoiceAmt,
     invoicePath: result.Location,
+    taxId: body.taxId,
     isPaid: false
   });
 
