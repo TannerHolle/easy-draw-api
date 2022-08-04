@@ -9,13 +9,12 @@ const checkAuth = require("../middleware/check-auth");
 
 const { Invoice } = require('../db/models/invoice.model')
 const { Project } = require('../db/models/project.model')
-const { uploadFile, getFileStream } = require('../s3')
+const { uploadFile, getFileStream, deleteFile } = require('../s3')
 
 
 // To delete image from server
 const fs = require('fs')
 const util = require('util')
-const unlinkFile = util.promisify(fs.unlink)
 
 
 const router = express.Router();
@@ -224,31 +223,35 @@ router.post('/update', checkAuth, async (req, res) => {
 
 /**
  * POST /api/invoices/delete
- * Purpose: Update an invoice
+ * Purpose: Delete an invoice
  */
-//  router.post('/delete', checkAuth, async (req, res) => {
+ router.post('/delete/:projectId/:draw', checkAuth, async (req, res) => {
+  var fileName = /[^/]*$/.exec(req.body.invoicePath)[0]
+  let result = await deleteFile(fileName)
+  console.log(result)
 
-//   Project.findOneAndUpdate(
-//     {
-//       "_id": req.body.projectId
-//     },
-//     { 
-//       $pull: { "draws.$[draw].invoices": {invoiceId: mongoose.Types.ObjectId(req.body.invoiceId) } }
-//     },
-//     {
-//       new: true,
-//       "arrayFilters": [
-//         { "draw.name": req.body.draw },
-//       ]
-//     }
-//     ).then((result) => {
-//       res.send(result.draws)
-//     }).catch((e) => {
-//       console.log(e)
-//       res.send(e);
-//     });
+  Project.findOneAndUpdate(
+    {
+      "_id": req.params.projectId
+    },
+    { 
+      $pull: { "draws.$[draw].invoices": {_id: mongoose.Types.ObjectId(req.body._id) } }
+    },
+    {
+      new: true,
+      "arrayFilters": [
+        { "draw.name": req.params.draw },
+      ]
+    }
+    ).then((result) => {
 
-// });
+      res.send("Invoice and file deleted successfully")
+    }).catch((e) => {
+      console.log(e)
+      res.send(e);
+    });
+
+});
 
 
 module.exports = router;
