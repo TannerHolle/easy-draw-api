@@ -225,7 +225,7 @@ router.post('/update', checkAuth, async (req, res) => {
  * POST /api/invoices/delete
  * Purpose: Delete an invoice
  */
- router.post('/delete/:projectId/:draw', checkAuth, async (req, res) => {
+router.post('/delete/:projectId/:draw', checkAuth, async (req, res) => {
   var fileName = /[^/]*$/.exec(req.body.invoicePath)[0]
   let result = await deleteFile(fileName)
   console.log(result)
@@ -234,8 +234,8 @@ router.post('/update', checkAuth, async (req, res) => {
     {
       "_id": req.params.projectId
     },
-    { 
-      $pull: { "draws.$[draw].invoices": {_id: mongoose.Types.ObjectId(req.body._id) } }
+    {
+      $pull: { "draws.$[draw].invoices": { _id: mongoose.Types.ObjectId(req.body._id) } }
     },
     {
       new: true,
@@ -243,14 +243,38 @@ router.post('/update', checkAuth, async (req, res) => {
         { "draw.name": req.params.draw },
       ]
     }
-    ).then((result) => {
+  ).then((result) => {
 
-      res.send("Invoice and file deleted successfully")
-    }).catch((e) => {
-      console.log(e)
-      res.send(e);
+    res.send("Invoice and file deleted successfully")
+  }).catch((e) => {
+    console.log(e)
+    res.send(e);
+  });
+
+});
+
+/**
+ * POST /invoice/:projectId/:draw
+ * Purpose: upload csv and add all invoices to draw
+ */
+router.post('/upload/:projectId/:draw', (req, res) => {
+  let body = req.body;
+  let invoices = body.map(v => ({...v, _id: mongoose.Types.ObjectId()}))
+
+  Project.findOneAndUpdate(
+    {
+      "_id": req.params.projectId
+    },
+    { $push: { "draws.$[draw].invoices": { $each: invoices } }} ,
+    {
+      new: true,
+      "arrayFilters": [
+        { "draw.name": req.params.draw },
+      ]
+    })
+    .then(() => {
+      res.sendStatus(200)
     });
-
 });
 
 
