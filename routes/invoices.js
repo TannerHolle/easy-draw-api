@@ -15,6 +15,7 @@ const { uploadFile, getFileStream, deleteFile } = require('../s3')
 // To delete image from server
 const fs = require('fs')
 const util = require('util')
+const unlinkFile = util.promisify(fs.unlink)
 
 
 const router = express.Router();
@@ -54,7 +55,7 @@ const upload = multer({
 /* INVOICE API CALLS */
 
 /**
- * POST /invoices
+ * POST /invoice/create
  * Purpose: Create a new invoice
  */
 router.post('/create', checkAuth, upload.single("image"), async (req, res) => {
@@ -62,6 +63,7 @@ router.post('/create', checkAuth, upload.single("image"), async (req, res) => {
   console.log(body);
   const url = req.protocol + '://' + req.get("host")
   const result = await uploadFile(req.file)
+  await unlinkFile(req.file.path)
   console.log(result)
   let newInvoice = new Invoice({
     company: body.company,
@@ -94,13 +96,14 @@ router.post('/create', checkAuth, upload.single("image"), async (req, res) => {
 });
 
 /**
- * POST /invoices
+ * POST /invoice/create-change-order
  * Purpose: Create a new change order
  */
 router.post('/create-change-order', checkAuth, upload.single("image"), async (req, res) => {
   let body = req.body;
   const url = req.protocol + '://' + req.get("host")
   const result = await uploadFile(req.file)
+  await unlinkFile(req.file.path)
   let newChangeOrder = new Invoice({
     company: body.company,
     address: body.address,
@@ -132,7 +135,7 @@ router.post('/create-change-order', checkAuth, upload.single("image"), async (re
 });
 
 /**
- * POST /mark-as-paid
+ * POST /invoice/change-paid-status
  * Purpose: Create a new change order
  */
 router.post('/change-paid-status', async (req, res) => {
@@ -184,7 +187,7 @@ router.post('/change-paid-status', async (req, res) => {
 });
 
 /**
-* GET /invoices
+* GET /invoice/get-aws-file
 * Purpose: Retrieve aws s3 file
 */
 router.get('/get-aws-file/:fileName', async (req, res) => {
@@ -194,7 +197,7 @@ router.get('/get-aws-file/:fileName', async (req, res) => {
 });
 
 /**
- * POST /api/invoices/update
+ * POST /invoice/update
  * Purpose: Update an invoice
  */
 router.post('/update', checkAuth, async (req, res) => {
@@ -222,7 +225,7 @@ router.post('/update', checkAuth, async (req, res) => {
 });
 
 /**
- * POST /api/invoices/delete
+ * POST /invoice/delete
  * Purpose: Delete an invoice
  */
 router.post('/delete/:projectId/:draw', checkAuth, async (req, res) => {
@@ -254,7 +257,7 @@ router.post('/delete/:projectId/:draw', checkAuth, async (req, res) => {
 });
 
 /**
- * POST /invoice/:projectId/:draw
+ * POST /invoice/upload/:projectId/:draw
  * Purpose: upload csv and add all invoices to draw
  */
 router.post('/upload/:projectId/:draw', (req, res) => {
@@ -266,6 +269,59 @@ router.post('/upload/:projectId/:draw', (req, res) => {
       "_id": req.params.projectId
     },
     { $push: { "draws.$[draw].invoices": { $each: invoices } }} ,
+    {
+      new: true,
+      "arrayFilters": [
+        { "draw.name": req.params.draw },
+      ]
+    })
+    .then(() => {
+      res.sendStatus(200)
+    });
+});
+
+/**
+ * POST /invoice/checks/:projectId/:draw
+ * Purpose: attach a copy of the checks to the draw
+ */
+router.post('/checks/:projectId/:draw', upload.single("image"), async (req, res) => {
+  let body = req.body;
+  console.log(body)
+  const result = await uploadFile(req.file)
+  await unlinkFile(req.file.path)
+  
+  Project.findOneAndUpdate(
+    {
+      "_id": req.params.projectId
+    },
+    { $set: { "draws.$[draw].checks": result.Location}} ,
+    {
+      new: true,
+      "arrayFilters": [
+        { "draw.name": req.params.draw },
+      ]
+    })
+    .then(() => {
+      res.sendStatus(200)
+    });
+  });
+  
+  /**
+   * POST /invoice/signedDraw/:projectId/:draw
+   * Purpose: attach signed draw image to the draw
+   */
+router.post('/signedDraw/:projectId/:draw', upload.single("image"), async (req, res) => {
+  let body = req.body;
+  console.log(body)
+  const result = await uploadFile(req.file)
+  await unlinkFile(req.file.path)
+
+
+  Project.findOneAndUpdate(
+    {
+      "_id": req.params.projectId
+    },
+    { $set: { "draws.$[draw].signedDraw": result.Location}} ,
     {
       new: true,
       "arrayFilters": [

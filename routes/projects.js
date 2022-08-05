@@ -146,7 +146,9 @@ const router = express.Router();
       name: req.body.drawId,
       isOpen: true,
       invoices: [],
-      changeOrders: []
+      changeOrders: [],
+      checks: '',
+      signedDraw: ''
     }
     Project.findOneAndUpdate(
       {
