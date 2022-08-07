@@ -78,7 +78,6 @@ router.post('/sign-up', async (req, res) => {
         password: hash,
         isVerified: false
       });
-      console.log(newUser)
       newUser.save()
         .then(user => {
           const token = jwt.sign(
