@@ -141,6 +141,7 @@ const router = express.Router();
    * Purpose: Opens a new draw
    */
   router.post('/open-new-draw/:id', (req, res) => {
+    const currentDateTime = new Date().toISOString();
 
     let newDraw = {
       name: req.body.drawId,
@@ -148,7 +149,8 @@ const router = express.Router();
       invoices: [],
       changeOrders: [],
       checks: '',
-      signedDraw: ''
+      signedDraw: '',
+      dateOpened: currentDateTime
     }
     Project.findOneAndUpdate(
       {

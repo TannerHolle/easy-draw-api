@@ -7,7 +7,8 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, require: true, unique: true },
   password: { type: String, require: true },
   isVerified: { type: Boolean, require: true },
-  resetPasswordLink: { type: Object }
+  resetPasswordLink: { type: Object },
+  dateAccountCreated: { type : Date, default: Date.now }
 })
 
 UserSchema.plugin(uniqueValidator);

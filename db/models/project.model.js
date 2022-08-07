@@ -11,7 +11,9 @@ const ProjectSchema = new mongoose.Schema({
   categories: [],
   draws: [],
   creator: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  completed: Boolean
+  dateStarted: { type : Date, default: Date.now },
+  completed: Boolean,
+  dateCompleted: Date,
 })
 
 const Project = mongoose.model('Project', ProjectSchema)
