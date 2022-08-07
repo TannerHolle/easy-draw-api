@@ -1,7 +1,8 @@
 const express = require("express");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { User } = require('../db/models/user.model')
+const { User } = require('../db/models/user.model');
+const EmailService = require("../services/EmailService");
 const router = express.Router();
 
 /* User API CALLS */
@@ -60,8 +61,8 @@ router.post('/login', (req, res) => {
 router.post('/sign-up', async (req, res) => {
   let body = req.body;
 
-  let user = await User.findOne({email: body.email});
-  if(user){
+  let user = await User.findOne({ email: body.email });
+  if (user) {
     return res.status(401).json({
       type: 'error',
       message: 'User with this email already exists!'
@@ -86,13 +87,28 @@ router.post('/sign-up', async (req, res) => {
 
           const origin = req.headers.origin;
           const link = `${origin}/sign-up/verify?id=${token}`;
-          console.log('link', link);
 
-          res.status(201).json({
-            type: 'success',
-            message: 'Verification Link sent to your email!',
-            result: user
-          })
+          const emailBody = '<div>Hello ' + user.name + ',</div><br>' +
+            '<div> Please click on the link below to verify your email: </div>' +
+            link;
+
+          EmailService.sendMail({
+            email: user.email,
+            subject: "Verify Email",
+            message: emailBody
+          }, (err) => {
+            if (err) {
+              res.status(401)({
+                message: 'Error sending email.'
+              });
+            } else {
+              res.status(200).json({
+                type: 'success',
+                message: 'Verification Link sent to your email!',
+                result: user
+              })
+            }
+          });
         })
         .catch(err => {
           res.status(500).json({
@@ -137,9 +153,23 @@ router.post('/send-reset-password-link', async (req, res) => {
 
     await User.updateOne({ _id: user._id }, { $set: { resetPasswordLink: { token, isValid: true } } });
 
-    console.log('link', link)
+    const emailBody = '<div>Hello ' + user.name + ',</div><br>' +
+      '<div> Please click on the link below to Reset your password: </div>' +
+      link;
 
-    res.status(200).send({ message: "We have sent you an email to reset your password!" })
+    EmailService.sendMail({
+      email: user.email,
+      subject: "Reset Password",
+      message: emailBody
+    }, (err) => {
+      if (err) {
+        res.status(401)({
+          message: 'Error sending email.'
+        });
+      } else {
+        res.status(200).send({ message: "We have sent you an email to reset your password!" })
+      }
+    });
   } else {
     res.status(200).send({ message: 'User Not Found!' });
   }
