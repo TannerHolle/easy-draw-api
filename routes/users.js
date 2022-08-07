@@ -20,6 +20,11 @@ router.post('/login', (req, res) => {
           message: "Auth Failed"
         });
       }
+      if (!user.isVerified) {
+        return res.status(401).json({
+          message: "User not verified"
+        });
+      }
       fetchedUser = user;
       return bcryptjs.compare(body.password, user.password);
     })
@@ -42,7 +47,7 @@ router.post('/login', (req, res) => {
       })
     })
     .catch(err => {
-      return res.status(401).json({
+      res.status(401).json({
         message: "Auth Failed"
       });
     })
@@ -62,14 +67,22 @@ router.post('/sign-up', (req, res) => {
         company: body.company,
         email: body.email,
         password: hash,
-        securityAnswer: body.answer
+        isVerified: false
       });
       console.log(newUser)
       newUser.save()
-        .then(result => {
+        .then(user => {
+          const token = jwt.sign(
+            { _id: user._id, email: user.email },
+            process.env.ENCRYPT_KEY);
+
+          const origin = req.headers.origin;
+          const link = `${origin}/sign-up/verify?id=${token}`;
+          console.log('link', link);
+
           res.status(201).json({
-            message: 'User Created',
-            result: result
+            message: 'Verification Link sent to your email!',
+            result: user
           })
         })
         .catch(err => {
@@ -81,6 +94,22 @@ router.post('/sign-up', (req, res) => {
     )
 });
 
+/**
+ * POST /api/user/verify-user-link
+ * Purpose: Verifies User's Sign up Link
+ */
+router.post('/verify-user-link', async (req, res) => {
+  let body = req.body;
+  const decipheredUserObject = jwt.decode(body.id)
+  let user = await User.findOne({ _id: decipheredUserObject._id, email: decipheredUserObject.email });
+
+  if (user) {
+    await User.updateOne({ _id: user._id }, { isVerified: true })
+    res.status(200).send({ type: 'success' })
+  } else {
+    res.status(200).send({ type: 'error', message: 'User Not Found!' });
+  }
+});
 
 /**
  * POST /api/user/send-reset-password-link
