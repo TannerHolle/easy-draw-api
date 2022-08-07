@@ -9,7 +9,8 @@ const InvoiceSchema = new mongoose.Schema({
   invoiceAmt: Number,
   invoicePath: String,
   taxId: String,
-  isPaid: Boolean
+  isPaid: Boolean,
+  dateEntered: { type : Date, default: Date.now },
 })
 
 const Invoice = mongoose.model('Invoice', InvoiceSchema)

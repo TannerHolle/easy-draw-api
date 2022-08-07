@@ -262,7 +262,8 @@ router.post('/delete/:projectId/:draw', checkAuth, async (req, res) => {
  */
 router.post('/upload/:projectId/:draw', (req, res) => {
   let body = req.body;
-  let invoices = body.map(v => ({...v, _id: mongoose.Types.ObjectId()}))
+  const currentDateTime = new Date().toISOString();
+  let invoices = body.map(v => ({...v, _id: mongoose.Types.ObjectId(), dateEntered: currentDateTime}))
 
   Project.findOneAndUpdate(
     {
