@@ -57,8 +57,16 @@ router.post('/login', (req, res) => {
  * POST /api/user/sign-up
  * Purpose: Create a new user
  */
-router.post('/sign-up', (req, res) => {
+router.post('/sign-up', async (req, res) => {
   let body = req.body;
+
+  let user = await User.findOne({email: body.email});
+  if(user){
+    return res.status(401).json({
+      type: 'error',
+      message: 'User with this email already exists!'
+    })
+  }
 
   bcryptjs.hash(body.password, 10)
     .then(hash => {
@@ -81,13 +89,14 @@ router.post('/sign-up', (req, res) => {
           console.log('link', link);
 
           res.status(201).json({
+            type: 'success',
             message: 'Verification Link sent to your email!',
             result: user
           })
         })
         .catch(err => {
           res.status(500).json({
-            error: err
+            message: err
           })
         })
     }
