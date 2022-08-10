@@ -9,7 +9,7 @@ const checkAuth = require("../middleware/check-auth");
 
 const { Invoice } = require('../db/models/invoice.model')
 const { Project } = require('../db/models/project.model')
-const { uploadFile, getFileStream } = require('../s3')
+const { uploadFile, getFileStream, deleteFile } = require('../s3')
 
 
 // To delete image from server
@@ -55,7 +55,7 @@ const upload = multer({
 /* INVOICE API CALLS */
 
 /**
- * POST /invoices
+ * POST /invoice/create
  * Purpose: Create a new invoice
  */
 router.post('/create', checkAuth, upload.single("image"), async (req, res) => {
@@ -63,6 +63,7 @@ router.post('/create', checkAuth, upload.single("image"), async (req, res) => {
   console.log(body);
   const url = req.protocol + '://' + req.get("host")
   const result = await uploadFile(req.file)
+  await unlinkFile(req.file.path)
   console.log(result)
   let newInvoice = new Invoice({
     company: body.company,
@@ -95,13 +96,14 @@ router.post('/create', checkAuth, upload.single("image"), async (req, res) => {
 });
 
 /**
- * POST /invoices
+ * POST /invoice/create-change-order
  * Purpose: Create a new change order
  */
 router.post('/create-change-order', checkAuth, upload.single("image"), async (req, res) => {
   let body = req.body;
   const url = req.protocol + '://' + req.get("host")
   const result = await uploadFile(req.file)
+  await unlinkFile(req.file.path)
   let newChangeOrder = new Invoice({
     company: body.company,
     address: body.address,
@@ -133,7 +135,7 @@ router.post('/create-change-order', checkAuth, upload.single("image"), async (re
 });
 
 /**
- * POST /mark-as-paid
+ * POST /invoice/change-paid-status
  * Purpose: Create a new change order
  */
 router.post('/change-paid-status', async (req, res) => {
@@ -185,7 +187,7 @@ router.post('/change-paid-status', async (req, res) => {
 });
 
 /**
-* GET /invoices
+* GET /invoice/get-aws-file
 * Purpose: Retrieve aws s3 file
 */
 router.get('/get-aws-file/:fileName', async (req, res) => {
@@ -195,7 +197,7 @@ router.get('/get-aws-file/:fileName', async (req, res) => {
 });
 
 /**
- * POST /api/invoices/update
+ * POST /invoice/update
  * Purpose: Update an invoice
  */
 router.post('/update', checkAuth, async (req, res) => {
@@ -223,32 +225,114 @@ router.post('/update', checkAuth, async (req, res) => {
 });
 
 /**
- * POST /api/invoices/delete
- * Purpose: Update an invoice
+ * POST /invoice/delete
+ * Purpose: Delete an invoice
  */
-//  router.post('/delete', checkAuth, async (req, res) => {
+router.post('/delete/:projectId/:draw', checkAuth, async (req, res) => {
+  var fileName = /[^/]*$/.exec(req.body.invoicePath)[0]
+  let result = await deleteFile(fileName)
+  console.log(result)
 
-//   Project.findOneAndUpdate(
-//     {
-//       "_id": req.body.projectId
-//     },
-//     { 
-//       $pull: { "draws.$[draw].invoices": {invoiceId: mongoose.Types.ObjectId(req.body.invoiceId) } }
-//     },
-//     {
-//       new: true,
-//       "arrayFilters": [
-//         { "draw.name": req.body.draw },
-//       ]
-//     }
-//     ).then((result) => {
-//       res.send(result.draws)
-//     }).catch((e) => {
-//       console.log(e)
-//       res.send(e);
-//     });
+  Project.findOneAndUpdate(
+    {
+      "_id": req.params.projectId
+    },
+    {
+      $pull: { "draws.$[draw].invoices": { _id: mongoose.Types.ObjectId(req.body._id) } }
+    },
+    {
+      new: true,
+      "arrayFilters": [
+        { "draw.name": req.params.draw },
+      ]
+    }
+  ).then((result) => {
 
-// });
+    res.send("Invoice and file deleted successfully")
+  }).catch((e) => {
+    console.log(e)
+    res.send(e);
+  });
+
+});
+
+/**
+ * POST /invoice/upload/:projectId/:draw
+ * Purpose: upload csv and add all invoices to draw
+ */
+router.post('/upload/:projectId/:draw', (req, res) => {
+  let body = req.body;
+  const currentDateTime = new Date().toISOString();
+  let invoices = body.map(v => ({...v, _id: mongoose.Types.ObjectId(), dateEntered: currentDateTime}))
+
+  Project.findOneAndUpdate(
+    {
+      "_id": req.params.projectId
+    },
+    { $push: { "draws.$[draw].invoices": { $each: invoices } }} ,
+    {
+      new: true,
+      "arrayFilters": [
+        { "draw.name": req.params.draw },
+      ]
+    })
+    .then(() => {
+      res.sendStatus(200)
+    });
+});
+
+/**
+ * POST /invoice/checks/:projectId/:draw
+ * Purpose: attach a copy of the checks to the draw
+ */
+router.post('/checks/:projectId/:draw', upload.single("image"), async (req, res) => {
+  let body = req.body;
+  console.log(body)
+  const result = await uploadFile(req.file)
+  await unlinkFile(req.file.path)
+  
+  Project.findOneAndUpdate(
+    {
+      "_id": req.params.projectId
+    },
+    { $set: { "draws.$[draw].checks": result.Location}} ,
+    {
+      new: true,
+      "arrayFilters": [
+        { "draw.name": req.params.draw },
+      ]
+    })
+    .then(() => {
+      res.sendStatus(200)
+    });
+  });
+  
+  /**
+   * POST /invoice/signedDraw/:projectId/:draw
+   * Purpose: attach signed draw image to the draw
+   */
+router.post('/signedDraw/:projectId/:draw', upload.single("image"), async (req, res) => {
+  let body = req.body;
+  console.log(body)
+  const result = await uploadFile(req.file)
+  await unlinkFile(req.file.path)
+
+
+  Project.findOneAndUpdate(
+    {
+      "_id": req.params.projectId
+    },
+    { $set: { "draws.$[draw].signedDraw": result.Location}} ,
+    {
+      new: true,
+      "arrayFilters": [
+        { "draw.name": req.params.draw },
+      ]
+    })
+    .then(() => {
+      res.sendStatus(200)
+    });
+});
 
 
 module.exports = router;
