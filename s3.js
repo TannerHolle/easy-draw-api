@@ -43,7 +43,6 @@ exports.getFileStream = getFileStream
 // deletes a file to s3
 function deleteFile(file) {
   console.log(file)
-  console.log("did it get here")
 
   const deleteParams = {
     Key: file,
