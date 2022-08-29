@@ -88,9 +88,9 @@ const router = express.Router();
       }
     ).then(result => {
       if(result.modifiedCount > 0) {
-        res.sendStatus(200).json({ message: 'Update successful'});
+        res.status(200).json({ message: 'Update successful'});
       } else {
-        res.sendStatus(401).json({ message: 'Not Authorized'});
+        res.status(401).json({ message: 'Not Authorized'});
 
       }
 
@@ -105,9 +105,9 @@ const router = express.Router();
     Project.deleteOne({_id: req.params.id, creator: req.userData.userId}).then(
       result => {
         if(result.deletedCount > 0) {
-          res.sendStatus(200).json({ message: 'Deletion successful'});
+          res.status(200).json({ message: 'Deletion successful'});
         } else {
-          res.sendStatus(401).json({ message: 'Not Authorized'});  
+          res.status(401).json({ message: 'Not Authorized'});  
         }    
       });
   })

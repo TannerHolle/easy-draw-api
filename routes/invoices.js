@@ -230,13 +230,11 @@ router.post('/update', checkAuth, async (req, res) => {
  */
 router.post('/delete/:projectId/:draw', checkAuth, async (req, res) => {
   console.log(req.body)
-  console.log(req.body.invoicePath)
   if (req.body.invoicePath.length > 0) {
     var fileName = /[^/]*$/.exec(req.body.invoicePath)[0]
     let result = await deleteFile(fileName)
     console.log(result)
   }
-
 
   Project.findOneAndUpdate(
     {
@@ -269,7 +267,6 @@ router.post('/upload/:projectId/:draw', (req, res) => {
   let body = req.body;
   const currentDateTime = new Date().toISOString();
   let invoices = body.map(v => ({...v, _id: mongoose.Types.ObjectId(), dateEntered: currentDateTime}))
-  console.log(JSON.stringify(invoices))
 
   Project.findOneAndUpdate(
     {
