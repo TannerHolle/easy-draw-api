@@ -1,17 +1,14 @@
-const express = require("express");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { User } = require('../db/models/user.model');
+const { User } = require('../../db/models/user.model');
 const EmailService = require("../services/EmailService");
-const router = express.Router();
 
-/* User API CALLS */
 
 /**
  * POST /api/user/login
  * Purpose: Sign In
  */
-router.post('/login', (req, res) => {
+module.exports.login = (req, res) => {
   let body = req.body;
   let fetchedUser;
   User.findOne({ email: body.email })
@@ -52,13 +49,13 @@ router.post('/login', (req, res) => {
         message: "Auth Failed"
       });
     })
-});
+}
 
 /**
  * POST /api/user/sign-up
  * Purpose: Create a new user
  */
-router.post('/sign-up', async (req, res) => {
+module.exports.signup = async (req, res) => {
   let body = req.body;
 
   let user = await User.findOne({ email: body.email });
@@ -116,13 +113,13 @@ router.post('/sign-up', async (req, res) => {
         })
     }
     )
-});
+}
 
 /**
  * POST /api/user/verify-user-link
  * Purpose: Verifies User's Sign up Link
  */
-router.post('/verify-user-link', async (req, res) => {
+module.exports.verifyUserLink = async (req, res) => {
   let body = req.body;
   const decipheredUserObject = jwt.decode(body.id)
   let user = await User.findOne({ _id: decipheredUserObject._id, email: decipheredUserObject.email });
@@ -133,13 +130,13 @@ router.post('/verify-user-link', async (req, res) => {
   } else {
     res.status(200).send({ type: 'error', message: 'User Not Found!' });
   }
-});
+}
 
 /**
  * POST /api/user/send-reset-password-link
  * Purpose: Sends out generated link for reset password
  */
-router.post('/send-reset-password-link', async (req, res) => {
+module.exports.sendResetPasswordLink = async (req, res) => {
   let body = req.body;
   let user = await User.findOne({ email: body.email });
   if (user) {
@@ -172,13 +169,13 @@ router.post('/send-reset-password-link', async (req, res) => {
   } else {
     res.status(200).send({ message: 'User Not Found!' });
   }
-});
+}
 
 /**
  * POST /api/user/verify-reset-password-link
  * Purpose: Verifies User's Reset Pass Link
  */
-router.post('/verify-reset-password-link', async (req, res) => {
+module.exports.verifyResetPasswordLink = async (req, res) => {
   let body = req.body;
   const decipheredUserObject = jwt.decode(body.id)
   let user = await User.findOne({ _id: decipheredUserObject._id, email: decipheredUserObject.email });
@@ -194,13 +191,13 @@ router.post('/verify-reset-password-link', async (req, res) => {
   } else {
     res.status(200).send({ type: 'error', message: 'User Not Found!' });
   }
-});
+}
 
 /**
  * POST /api/user/reset-password
  * Purpose: Updates User's Password
  */
-router.post('/reset-password', (req, res) => {
+module.exports.resetPassword = (req, res) => {
   let body = req.body;
   bcryptjs.hash(body.password, 10)
     .then(hash => {
@@ -220,19 +217,17 @@ router.post('/reset-password', (req, res) => {
       });
     }
     )
-});
+}
 
 /**
 * GET /user/find
 * Purpose: Return the info for one user
 */
-router.post('/find', (req, res) => {
+module.exports.find = (req, res) => {
   User.find({ email: req.body.email }).then((user) => {
     console.log(user)
     res.send(user);
   }).catch((e) => {
     res.send(e);
   });
-});
-
-module.exports = router;
+}
