@@ -3,11 +3,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { mongoose } = require('./db/mongoose');
 
-const invoiceRoutes = require("./routes/invoices");
-const userRoutes = require("./routes/users");
-const projectRoutes = require("./routes/projects");
-const companyRoutes = require("./routes/companies");
-const categoryRoutes = require("./routes/categories");
+const invoiceRoutes = require("./src/routes/invoices");
+const userRoutes = require("./src/routes/users");
+const projectRoutes = require("./src/routes/projects");
+const companyRoutes = require("./src/routes/companies");
+const categoryRoutes = require("./src/routes/categories");
 
 const app = express();
 
