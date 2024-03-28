@@ -5,7 +5,7 @@ const { Project } = require('../../db/models/project.model');
  * Purpose: Get all projects in the db
  */
 module.exports.list = (req, res) => {
-  Project.find({}).then((projects) => {
+  Project.find({}).populate('borrower').populate('lender').then((projects) => {
     res.send(projects);
   }).catch((e) => {
     res.send(e);
@@ -18,7 +18,7 @@ module.exports.list = (req, res) => {
  * Purpose: Get all projects in the db for one User
  */
 module.exports.listByCreator = (req, res) => {
-  Project.find({ creator: req.params.creatorId }).then((projects) => {
+  Project.find({ creator: req.params.creatorId }).populate('borrower').populate('lender').then((projects) => {
     res.send(projects);
   }).catch((e) => {
     res.send(e);
@@ -30,7 +30,7 @@ module.exports.listByCreator = (req, res) => {
  * Purpose: Get one project filtered by project id
  */
 module.exports.getProjectById = (req, res) => {
-  Project.find({ "_id": req.params.id }).then((projects) => {
+  Project.find({ "_id": req.params.id }).populate('borrower').populate('lender').then((projects) => {
     res.send(projects);
   }).catch((e) => {
     console.log(e)
@@ -48,7 +48,8 @@ module.exports.create = (req, res) => {
   let newProject = new Project({
     name: body.name,
     address: body.address,
-    client: body.client,
+    borrower: body.borrower,
+    lender: body.lender,
     phone: body.phone,
     email: body.email,
     budget: body.budget,

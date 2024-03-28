@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { login, find, signup, verifyUserLink, sendResetPasswordLink, verifyResetPasswordLink, resetPassword } = require("../controllers/UserController");
+const { login, find, signup, verifyUserLink, sendResetPasswordLink, verifyResetPasswordLink, resetPassword, findAll } = require("../controllers/UserController");
 
 /* User API CALLS */
 
@@ -45,5 +45,11 @@ router.post('/reset-password', resetPassword);
 * Purpose: Return the info for one user
 */
 router.post('/find', find);
+
+/**
+* GET /user/findAll
+* Purpose: Return all matching users
+*/
+router.post('/findAll', findAll);
 
 module.exports = router;

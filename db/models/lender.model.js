@@ -5,13 +5,13 @@ const lenderSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  admin: {
-    type: Schema.Types.ObjectId,
+  admin: [{
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  },
+  }],
   members: [{
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
 });

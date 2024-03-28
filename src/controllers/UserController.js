@@ -231,3 +231,17 @@ module.exports.find = (req, res) => {
     res.send(e);
   });
 }
+
+/**
+* GET /user/findAll
+* Purpose: Return all matching users
+*/
+module.exports.findAll = (req, res) => {
+  const email = req.body.email;
+  User.find({ email: { $regex: email.toLowerCase() } }, { password: 0 }).then((user) => {
+    console.log(user)
+    res.send(user);
+  }).catch((e) => {
+    res.send(e);
+  });
+}

@@ -5,6 +5,7 @@ const { mongoose } = require('./db/mongoose');
 
 const invoiceRoutes = require("./src/routes/invoices");
 const userRoutes = require("./src/routes/users");
+const lenderRoutes = require("./src/routes/lenders");
 const projectRoutes = require("./src/routes/projects");
 const companyRoutes = require("./src/routes/companies");
 const categoryRoutes = require("./src/routes/categories");
@@ -31,6 +32,7 @@ app.use((req, res, next) => {
 
 app.use("/api/invoice/", invoiceRoutes);
 app.use("/api/user/", userRoutes);
+app.use("/api/lender/", lenderRoutes);
 app.use("/api/company/", companyRoutes);
 app.use("/api/project/", projectRoutes);
 app.use("/api/category/", categoryRoutes);
